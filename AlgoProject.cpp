@@ -358,7 +358,18 @@ pair<string, string> preprocessStrings(string s1, string s2, vector<int>& indexe
 }
 
 
-
+void writeOutput(vector<int> iMinCostAdv, pair<string, string> iMinCostDnCnDP, duration<long long,std::micro> iDuration)
+{
+	ofstream outputFile;
+	outputFile.open ("output.txt");
+	outputFile << iMinCostDnCnDP.first << endl;					//Line1
+	outputFile << iMinCostDnCnDP.second << endl;				//Line2
+	outputFile << iMinCostAdv[iMinCostAdv.size()-1]<<endl;		//Line3 - Cost
+	outputFile << iDuration.count() / double(1000000) << endl;	//Line4 - Time consumed
+	outputFile << "1234" << endl;								//Line5 - Space consumed - Dummy value (To do - Find actual cost)
+	outputFile.close();
+	
+}
 int main(int argc, char* argv[])
 {
 
@@ -476,5 +487,7 @@ int main(int argc, char* argv[])
 
 		auto duration = duration_cast<microseconds>(stop - start);
 		cout << duration.count() / double(1000000) << endl;
+		writeOutput(minCostAdv, minCostDnCnDP, duration);
+		file.close();
 	}
 }
