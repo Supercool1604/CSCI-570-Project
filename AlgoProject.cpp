@@ -359,118 +359,122 @@ pair<string, string> preprocessStrings(string s1, string s2, vector<int>& indexe
 
 
 
-int main()
+int main(int argc, char* argv[])
 {
 
 
 	auto start = high_resolution_clock::now();
 
-
-
-	ifstream file("input2.txt");
-	string line;
-	string s1="", s2 ="";
-	vector<int> indexesS1;
-	vector<int> indexesS2;
-	bool flag = false;
-	int num = -1;
-	int count = 0;
-	while(getline(file, line))
+ 	string fileName = "";
+	if(argc == 2)
+    {
+		fileName = argv[1];	//Input File Name
+	}
+	if(!fileName.empty())
 	{
-		if(count == 0 && !flag)
+		ifstream file(fileName);
+		string line;
+		string s1="", s2 ="";
+		vector<int> indexesS1;
+		vector<int> indexesS2;
+		bool flag = false;
+		int num = -1;
+		int count = 0;
+		while(getline(file, line))
 		{
-			s1 += line;
-		}
-		else if(line[0] >= 58 && !flag)
-		{
-			// cout<<"here : "<<line<<endl;
-			s2 += line;
-			flag = true;
-		}
-		else
-		{
-			if(!flag){
-				if(line=="") continue;
-				int val = stoi(line);
-				indexesS1.push_back(val);
+			if(count == 0 && !flag)
+			{
+				s1 += line;
 			}
-			else{
-				if(num==-1)
-					num = 0;
-				if(line=="") continue;
-				indexesS2.push_back(stoi(line));
-				num++;
+			else if(line[0] >= 58 && !flag)
+			{
+				// cout<<"here : "<<line<<endl;
+				s2 += line;
+				flag = true;
 			}
+			else
+			{
+				if(!flag){
+					if(line=="") continue;
+					int val = stoi(line);
+					indexesS1.push_back(val);
+				}
+				else{
+					if(num==-1)
+						num = 0;
+					if(line=="") continue;
+					indexesS2.push_back(stoi(line));
+					num++;
+				}
+			}
+			count++;
+			// if()
 		}
-		count++;
-		// if()
+
+		// cout<<s1.size() <<" "<<s2.size()<<endl;
+
+		if(s1.size()>1)
+		s1 = s1.substr(0, s1.size()-1);
+
+		if(s2.size()>1)
+		s2 = s2.substr(0, s2.size()-1);
+
+		// cout<<s1<<", "<<s2<<endl;
+
+		/*
+		cout<<s1<<" "<<s2<<endl;
+		for(int i=0;i<indexesS1.size();i++)
+		{
+			cout<<indexesS1[i]<<" ";
+		}
+		cout<<endl;
+		for(int i=0;i<indexesS2.size();i++)
+		{
+			cout<<indexesS2[i]<<" ";
+		}
+
+		// cout<<endl;
+
+		*/
+
+
+
+
+
+		pair<string, string> alginmentStrings = preprocessStrings(s1, s2, indexesS1, indexesS2);
+
+		string sequence1 = alginmentStrings.first;
+		string sequence2 = alginmentStrings.second;
+
+		cout<<sequence1.size()<<" "<<sequence2.size()<<endl;
+
+		int delta = 30;
+
+		int alphas[4][4] = { 	 
+			{0,110,48,94},
+			{110, 0, 118, 48}, 
+			{48,118,0,110}, 
+			{94,48,110,0} 
+		};
+
+		// pair<int, pair<string, string> > minCostBasic = findOptimalCost(sequence1, sequence2, delta, alphas);
+		// cout<<minCostBasic.first<<endl;
+
+		// cout<<minCostBasic.second.first<<endl;
+		// cout<<minCostBasic.second.second<<endl;
+		// cout<<endl;
+
+		pair<string, string> minCostDnCnDP = findOptimalCostOptimizedSpace(sequence1, sequence2, delta, alphas);
+		vector<int> minCostAdv = optimalCostValueOptimisedSpace(sequence1, sequence2,delta,alphas);
+		cout<<minCostAdv[minCostAdv.size()-1]<<endl;
+
+		cout<<minCostDnCnDP.first<<endl;
+		cout<<minCostDnCnDP.second<<endl;
+
+
+		auto stop = high_resolution_clock::now();
+
+		auto duration = duration_cast<microseconds>(stop - start);
+		cout << duration.count() / double(1000000) << endl;
 	}
-
-	// cout<<s1.size() <<" "<<s2.size()<<endl;
-
-	if(s1.size()>1)
-	s1 = s1.substr(0, s1.size()-1);
-
-	if(s2.size()>1)
-	s2 = s2.substr(0, s2.size()-1);
-
-	// cout<<s1<<", "<<s2<<endl;
-
-	/*
-	cout<<s1<<" "<<s2<<endl;
-	for(int i=0;i<indexesS1.size();i++)
-	{
-		cout<<indexesS1[i]<<" ";
-	}
-	cout<<endl;
-	for(int i=0;i<indexesS2.size();i++)
-	{
-		cout<<indexesS2[i]<<" ";
-	}
-
-	// cout<<endl;
-
-	*/
-
-
-
-
-
-	pair<string, string> alginmentStrings = preprocessStrings(s1, s2, indexesS1, indexesS2);
-
-	string sequence1 = alginmentStrings.first;
-	string sequence2 = alginmentStrings.second;
-
-	cout<<sequence1.size()<<" "<<sequence2.size()<<endl;
-
-	int delta = 30;
-
-	int alphas[4][4] = { 	 
-		{0,110,48,94},
-		 {110, 0, 118, 48}, 
-		 {48,118,0,110}, 
-		 {94,48,110,0} 
-	};
-
-	// pair<int, pair<string, string> > minCostBasic = findOptimalCost(sequence1, sequence2, delta, alphas);
-	// cout<<minCostBasic.first<<endl;
-
-	// cout<<minCostBasic.second.first<<endl;
-	// cout<<minCostBasic.second.second<<endl;
-	// cout<<endl;
-
-	pair<string, string> minCostDnCnDP = findOptimalCostOptimizedSpace(sequence1, sequence2, delta, alphas);
-	vector<int> minCostAdv = optimalCostValueOptimisedSpace(sequence1, sequence2,delta,alphas);
-	cout<<minCostAdv[minCostAdv.size()-1]<<endl;
-
-	cout<<minCostDnCnDP.first<<endl;
-	cout<<minCostDnCnDP.second<<endl;
-
-
-	auto stop = high_resolution_clock::now();
-
-	auto duration = duration_cast<microseconds>(stop - start);
-	cout << duration.count() / double(1000000) << endl;
-
-
 }
