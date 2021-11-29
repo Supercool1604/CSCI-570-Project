@@ -1,6 +1,11 @@
 #include<bits/stdc++.h>
 #include<fstream>
 #include<chrono>
+#include <sys/resource.h>
+
+#define   RUSAGE_SELF     0
+#define   RUSAGE_CHILDREN     -1
+
 using namespace std;
 using namespace std::chrono;
 int charValue(char c)
@@ -16,16 +21,15 @@ pair<int, pair<string, string> > findOptimalCost(string s1, string s2, int delta
 {
 	int m = s1.length();
 	int n = s2.length();
-	// cout<<n<<" "<<m<<endl;
 	vector< vector<pair<int, pair<int, int> > > > dp(m+1, vector<pair<int, pair<int, int> > >(n+1));
 	for(int i=0;i<=m;i++)
 	{
 		vector<pair<int, pair<int, int> > > vec;
-		vec.push_back(make_pair(0, make_pair(-1,-1)));
 		for (int j= 0; j <=n; ++j)
 		{
-			dp.push_back(vec);
+			vec.push_back(make_pair(0, make_pair(-1,-1)));
 		}
+		dp.push_back(vec);
 	}
 
 	for(int i=0;i<=m;i++)
@@ -37,17 +41,6 @@ pair<int, pair<string, string> > findOptimalCost(string s1, string s2, int delta
 	{
 		dp[0][i].first = (i)*delta;
 	}
-	
-	// 	for(int i=0;i<=m;i++)
-	// {
-	// 	for(int j=0;j<=n;j++)
-	// 	{
-	// 		cout<<dp[i][j].first<<" ";
-	// 	}
-	// 	cout<<endl;
-	// }
-
-
 
 	for(int i=1;i<=m;i++)
 	{
@@ -69,16 +62,6 @@ pair<int, pair<string, string> > findOptimalCost(string s1, string s2, int delta
 			 }
 		}
 	}
-
-
-	// for(int i=0;i<=m;i++)
-	// {
-	// 	for(int j=0;j<=n;j++)
-	// 	{
-	// 		cout<<dp[i][j].first<<" ";
-	// 	}
-	// 	cout<<endl;
-	// }
 
 	int minCostForAlignment = dp[m][n].first;
 
@@ -120,16 +103,8 @@ pair<int, pair<string, string> > findOptimalCost(string s1, string s2, int delta
 		yAlignment = s2[j-1] + yAlignment;
 		j--;
 	}
-	
-
-	// cout<<xAlignment.substr(0,50)<<" "<<yAlignment.substr(0,50)<<endl;
-	// cout<<xAlignment.substr(xAlignment.length()-50)<<" "<<yAlignment.substr(yAlignment.length()-50)<<endl;
-
 
 	return make_pair(minCostForAlignment, make_pair(xAlignment, yAlignment));
-
-
-
 }
 
 void printVector(vector<int> vec)
@@ -183,25 +158,17 @@ vector<int> optimalCostValueOptimisedSpace(string s1, string s2, int delta, int 
 		{
 			col2[j]= min(col2[j-1] + delta, min(col1[j-1] + alphas[charValue(s1[j-1])][charValue(s2[i-1])], col1[j] + delta));
 		}
-		// printVector(col1);
-		// printVector(col2);
 		ans.push_back(col2[m]);
 		col1 = col2;
 	}
 
 	return ans;
-
-
-	// return col2[col2.size()-1];
-
 }
 
 pair<string, string> findOptimalCostOptimizedSpace(string s1, string s2, int delta, int alphas[4][4])
 {
 	int len1 = s1.length();
 	int len2 = s2.length();
-
-	// cout<<s1.length()<<" and lens2 : "<<s2.length()<<" valueS2: "<<s2<<endl;
 
 	if(len1 == 0 && len2 == 0)
 	{
@@ -219,7 +186,6 @@ pair<string, string> findOptimalCostOptimizedSpace(string s1, string s2, int del
 
 	if(len2 == 0)
 	{
-		// cout<<"here<<"<<endl;
 		string p2 = "";
 		for(int i=0;i<len1;i++)
 		{
@@ -250,23 +216,9 @@ pair<string, string> findOptimalCostOptimizedSpace(string s1, string s2, int del
 	string leftS1 = s1.substr(0,m1);
 	string rightS1 = s1.substr(m1);
 
-
-	// cout<<leftS1<<", "<<rightS1<<endl;
-
 	vector<int> s2DividedForLeftS1;
 	vector<int> s2DividedForRightS1;
 	
-
-
-	/*
-	for(int i=0;i<=s2.length();i++)
-	{
-		string temp = s2.substr(0,i);
-		// cout<<"calling from here 1"<<endl;
-		int val = optimalCostValueOptimisedSpace(leftS1, temp, delta, alphas);
-		s2DividedForLeftS1.push_back(val);
-	}
-	*/
 
 	s2DividedForLeftS1 = optimalCostValueOptimisedSpace(leftS1, s2, delta, alphas);
 
@@ -276,21 +228,8 @@ pair<string, string> findOptimalCostOptimizedSpace(string s1, string s2, int del
 	reverse(s2Reversed.begin(), s2Reversed.end());
 	reverse(rightS1Reversed.begin(), rightS1Reversed.end());
 
-
-	/*
-	for(int i=0;i<=s2Reversed.length();i++)
-	{
-		string temp = s2Reversed.substr(0,i);
-		int val = optimalCostValueOptimisedSpace(rightS1Reversed, temp, delta, alphas);
-		s2DividedForRightS1.push_back(val);
-	}
-	*/
 	s2DividedForRightS1 = optimalCostValueOptimisedSpace(rightS1Reversed, s2Reversed , delta, alphas);
 
-
-
-
-	// cout<<s2DividedForLeftS1.size()<<" "<<s2DividedForRightS1.size()<<endl;
 
 	reverse(s2DividedForRightS1.begin(), s2DividedForRightS1.end());
 	int mini = INT_MAX, ind = -1;
@@ -299,19 +238,13 @@ pair<string, string> findOptimalCostOptimizedSpace(string s1, string s2, int del
 		if(mini >= s2DividedForLeftS1[i] + s2DividedForRightS1[i])
 		{
 			mini = s2DividedForLeftS1[i] + s2DividedForRightS1[i];
-			// cout<<"minimum cost value : "<<mini<<" for "<<i<<endl;
 			ind = i;
 		}
 	}
-	// cout<<"divide at "<<ind<<endl;
 	string s2Left = s2.substr(0, ind);
 	string s2Right = s2.substr(ind);
 
-	// cout<<"giving : "<<s2Left<<", "<<s2Right<<" with cost: "<<mini<<endl;
-
 	pair<string, string> leftAns = findOptimalCostOptimizedSpace(leftS1, s2Left, delta, alphas);
-	// cout<<"leftSorted"<<endl;
-	// cout<<rightS1<<", "<<s2Right<<endl;
 	pair<string, string> rightAns = findOptimalCostOptimizedSpace(rightS1, s2Right, delta, alphas);
 
 	pair<string, string> finalAns;
@@ -357,24 +290,26 @@ pair<string, string> preprocessStrings(string s1, string s2, vector<int>& indexe
 
 }
 
-
-void writeOutput(vector<int> iMinCostAdv, pair<string, string> iMinCostDnCnDP, duration<long long,std::micro> iDuration)
+void writeOutputBasic(pair<int, pair<string, string> > iMinCostBasic, duration<long long,std::micro> iDuration, int iMemory)
 {
 	ofstream outputFile;
 	outputFile.open ("output.txt");
-	outputFile << iMinCostDnCnDP.first << endl;					//Line1
-	outputFile << iMinCostDnCnDP.second << endl;				//Line2
-	outputFile << iMinCostAdv[iMinCostAdv.size()-1]<<endl;		//Line3 - Cost
-	outputFile << iDuration.count() / double(1000000) << endl;	//Line4 - Time consumed
-	outputFile << "1234" << endl;								//Line5 - Space consumed - Dummy value (To do - Find actual cost)
+	outputFile << iMinCostBasic.second.first << endl;			    //Line1
+	outputFile << iMinCostBasic.second.second << endl;				//Line2
+	outputFile << iMinCostBasic.first<<endl;		                //Line3 - Cost
+	outputFile << iDuration.count() / double(1000000) << endl;	    //Line4 - Time consumed
+	outputFile << iMemory << endl;								    //Line5 - Space consumed - Dummy value
 	outputFile.close();
 	
 }
+
 int main(int argc, char* argv[])
 {
 
 
 	auto start = high_resolution_clock::now();
+	struct rusage usage;
+	int returnValue = getrusage(RUSAGE_SELF, &usage);
 
  	string fileName = "";
 	if(argc == 2)
@@ -399,7 +334,6 @@ int main(int argc, char* argv[])
 			}
 			else if(line[0] >= 58 && !flag)
 			{
-				// cout<<"here : "<<line<<endl;
 				s2 += line;
 				flag = true;
 			}
@@ -419,39 +353,14 @@ int main(int argc, char* argv[])
 				}
 			}
 			count++;
-			// if()
 		}
 
-		// cout<<s1.size() <<" "<<s2.size()<<endl;
 
 		if(s1.size()>1)
 		s1 = s1.substr(0, s1.size()-1);
 
 		if(s2.size()>1)
 		s2 = s2.substr(0, s2.size()-1);
-
-		// cout<<s1<<", "<<s2<<endl;
-
-		/*
-		cout<<s1<<" "<<s2<<endl;
-		for(int i=0;i<indexesS1.size();i++)
-		{
-			cout<<indexesS1[i]<<" ";
-		}
-		cout<<endl;
-		for(int i=0;i<indexesS2.size();i++)
-		{
-			cout<<indexesS2[i]<<" ";
-		}
-
-		// cout<<endl;
-
-		*/
-
-
-
-
-
 		pair<string, string> alginmentStrings = preprocessStrings(s1, s2, indexesS1, indexesS2);
 
 		string sequence1 = alginmentStrings.first;
@@ -468,26 +377,24 @@ int main(int argc, char* argv[])
 			{94,48,110,0} 
 		};
 
-		// pair<int, pair<string, string> > minCostBasic = findOptimalCost(sequence1, sequence2, delta, alphas);
-		// cout<<minCostBasic.first<<endl;
+		pair<int, pair<string, string> > minCostBasic = findOptimalCost(sequence1, sequence2, delta, alphas);
+		cout<<minCostBasic.first<<endl;
 
-		// cout<<minCostBasic.second.first<<endl;
-		// cout<<minCostBasic.second.second<<endl;
-		// cout<<endl;
-
-		pair<string, string> minCostDnCnDP = findOptimalCostOptimizedSpace(sequence1, sequence2, delta, alphas);
-		vector<int> minCostAdv = optimalCostValueOptimisedSpace(sequence1, sequence2,delta,alphas);
-		cout<<minCostAdv[minCostAdv.size()-1]<<endl;
-
-		cout<<minCostDnCnDP.first<<endl;
-		cout<<minCostDnCnDP.second<<endl;
-
+		cout<<minCostBasic.second.first<<endl;
+		cout<<minCostBasic.second.second<<endl;
+		cout<<endl;
 
 		auto stop = high_resolution_clock::now();
 
 		auto duration = duration_cast<microseconds>(stop - start);
 		cout << duration.count() / double(1000000) << endl;
-		writeOutput(minCostAdv, minCostDnCnDP, duration);
+
+        struct rusage usage2;
+        int returnValue2 = getrusage(RUSAGE_SELF, &usage2);
+        cout << usage2.ru_maxrss << endl;
+        int memoryConsumed = usage2.ru_maxrss - usage.ru_maxrss;
+
+		writeOutputBasic(minCostBasic, duration, memoryConsumed);
 		file.close();
 	}
 }
