@@ -290,13 +290,13 @@ pair<string, string> preprocessStrings(string s1, string s2, vector<int>& indexe
 
 }
 
-void writeOutputBasic(pair<int, pair<string, string> > iMinCostBasic, duration<long long,std::micro> iDuration, int iMemory)
+void writeOutputBasic(long cost, string line1, string line2, duration<long long,std::micro> iDuration, float iMemory)
 {
 	ofstream outputFile;
 	outputFile.open ("output.txt");
-	outputFile << iMinCostBasic.second.first << endl;			    //Line1
-	outputFile << iMinCostBasic.second.second << endl;				//Line2
-	outputFile << iMinCostBasic.first<<endl;		                //Line3 - Cost
+	outputFile << line1 << endl;			    //Line1
+	outputFile << line2 << endl;				//Line2
+	outputFile << cost<<endl;		                //Line3 - Cost
 	outputFile << iDuration.count() / double(1000000) << endl;	    //Line4 - Time consumed
 	outputFile << iMemory << endl;								    //Line5 - Space consumed - Dummy value
 	outputFile.close();
@@ -366,7 +366,7 @@ int main(int argc, char* argv[])
 		string sequence1 = alginmentStrings.first;
 		string sequence2 = alginmentStrings.second;
 
-		cout<<sequence1.size()<<" "<<sequence2.size()<<endl;
+		// cout<<sequence1.size()<<" "<<sequence2.size()<<endl;
 
 		int delta = 30;
 
@@ -380,9 +380,41 @@ int main(int argc, char* argv[])
 		pair<int, pair<string, string> > minCostBasic = findOptimalCost(sequence1, sequence2, delta, alphas);
 		cout<<minCostBasic.first<<endl;
 
-		cout<<minCostBasic.second.first<<endl;
-		cout<<minCostBasic.second.second<<endl;
-		cout<<endl;
+		string firstFiftyX="", firstFiftyY = "";
+		string lastFiftyX="", lastFiftyY = "";
+
+		string xAligned = minCostBasic.second.first;
+		string yAligned = minCostBasic.second.second;
+		int lenX = xAligned.length();
+		int lenY = yAligned.length();
+		if(lenX > 50){
+			firstFiftyX = xAligned.substr(0,50);
+			lastFiftyX = xAligned.substr(lenX - 50); 
+		}
+		else
+		{
+			firstFiftyX = xAligned;
+			lastFiftyX = xAligned;
+		}
+
+		if(lenY > 50)
+		{
+			firstFiftyY = yAligned.substr(0,50);
+			lastFiftyY = yAligned.substr(lenY - 50); 
+		}
+		else
+		{
+			firstFiftyY = yAligned;
+			lastFiftyY = yAligned;
+		}
+
+		cout<<firstFiftyX<<" "<<lastFiftyX<<endl;
+		cout<<firstFiftyY<<" "<<lastFiftyY<<endl;
+
+
+		// cout<<minCostBasic.second.first<<endl;
+		// cout<<minCostBasic.second.second<<endl;
+		// cout<<endl;
 
 		auto stop = high_resolution_clock::now();
 
@@ -390,11 +422,18 @@ int main(int argc, char* argv[])
 		cout << duration.count() / double(1000000) << endl;
 
         struct rusage usage2;
-        int returnValue2 = getrusage(RUSAGE_SELF, &usage2);
-        cout << usage2.ru_maxrss << endl;
-        int memoryConsumed = usage2.ru_maxrss - usage.ru_maxrss;
+        float returnValue2 = getrusage(RUSAGE_SELF, &usage2);
+        cout << float(usage2.ru_maxrss)/float(1024) << endl;
+        float memoryConsumed = usage2.ru_maxrss - usage.ru_maxrss;
+        memoryConsumed = float(memoryConsumed)/float(1024);
 
-		writeOutputBasic(minCostBasic, duration, memoryConsumed);
+
+
+
+        string line1 = firstFiftyX + " " + lastFiftyX;
+        string line2 = firstFiftyY + " " + lastFiftyY;
+        long cost = minCostBasic.first;
+		writeOutputBasic(cost, line1, line2, duration, memoryConsumed);
 		file.close();
 	}
 }
