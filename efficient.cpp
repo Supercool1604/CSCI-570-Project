@@ -291,12 +291,12 @@ pair<string, string> preprocessStrings(string s1, string s2, vector<int>& indexe
 }
 
 
-void writeOutput(vector<int> iMinCostAdv, pair<string, string> iMinCostDnCnDP, duration<long long,std::micro> iDuration, int iMemoryConsumed)
+void writeOutput(vector<int> iMinCostAdv, string line1, string line2, duration<long long,std::micro> iDuration, float iMemoryConsumed)
 {
 	ofstream outputFile;
 	outputFile.open ("output.txt");
-	outputFile << iMinCostDnCnDP.first << endl;					//Line1
-	outputFile << iMinCostDnCnDP.second << endl;				//Line2
+	outputFile << line1 << endl;					//Line1
+	outputFile << line2 << endl;				//Line2
 	outputFile << iMinCostAdv[iMinCostAdv.size()-1]<<endl;		//Line3 - Cost
 	outputFile << iDuration.count() / double(1000000) << endl;	//Line4 - Time consumed
 	outputFile << iMemoryConsumed << endl;						//Line5 - Space consumed - Dummy value (To do - Find actual cost)
@@ -379,9 +379,40 @@ int main(int argc, char* argv[])
 		pair<string, string> minCostDnCnDP = findOptimalCostOptimizedSpace(sequence1, sequence2, delta, alphas);
 		vector<int> minCostAdv = optimalCostValueOptimisedSpace(sequence1, sequence2,delta,alphas);
 		cout<<minCostAdv[minCostAdv.size()-1]<<endl;
+		string firstFiftyX="", firstFiftyY = "";
+		string lastFiftyX="", lastFiftyY = "";
 
-		cout<<minCostDnCnDP.first<<endl;
-		cout<<minCostDnCnDP.second<<endl;
+
+		string xAligned = minCostDnCnDP.first;
+		string yAligned = minCostDnCnDP.second;
+		int lenX = xAligned.length();
+		int lenY = yAligned.length();
+		if(lenX > 50){
+			firstFiftyX = xAligned.substr(0,50);
+			lastFiftyX = xAligned.substr(lenX - 50); 
+		}
+		else
+		{
+			firstFiftyX = xAligned;
+			lastFiftyX = xAligned;
+		}
+
+		if(lenY > 50)
+		{
+			firstFiftyY = yAligned.substr(0,50);
+			lastFiftyY = yAligned.substr(lenY - 50); 
+		}
+		else
+		{
+			firstFiftyY = yAligned;
+			lastFiftyY = yAligned;
+		}
+
+		cout<<firstFiftyX<<" "<<lastFiftyX<<endl;
+		cout<<firstFiftyY<<" "<<lastFiftyY<<endl;
+		
+		// cout<<minCostDnCnDP.first<<endl;
+		// cout<<minCostDnCnDP.second<<endl;
 
 
 		auto stop = high_resolution_clock::now();
@@ -390,11 +421,16 @@ int main(int argc, char* argv[])
 		cout << duration.count() / double(1000000) << endl;
 		
 		struct rusage usage2;
-        int returnValue2 = getrusage(RUSAGE_SELF, &usage2);
-        cout << usage2.ru_maxrss << endl;
-        int memoryConsumed = usage2.ru_maxrss - usage.ru_maxrss;
+        float returnValue2 = getrusage(RUSAGE_SELF, &usage2);
+        cout << float(usage2.ru_maxrss)/float(1024) << endl;
+        float memoryConsumed = usage2.ru_maxrss - usage.ru_maxrss;
+        memoryConsumed /= float(1024);
 
-		writeOutput(minCostAdv, minCostDnCnDP, duration, memoryConsumed);
+
+        string line1 = firstFiftyX + " " + lastFiftyX;
+        string line2 = firstFiftyY + " " + lastFiftyY;
+
+		writeOutput(minCostAdv, line1, line2, duration, memoryConsumed);
 		file.close();
 	}
 }
