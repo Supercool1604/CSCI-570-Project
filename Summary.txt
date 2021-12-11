@@ -1,0 +1,131 @@
+ALGORITHMS PROJECT REPORT
+
+-----------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------
+
+
+Introduction
+
+
+Code Implementation
+The following section of the report gives a succinct description of the algorithmic techniques employed and the implementation details for both, the basic and space-efficient version of the assignment. The language used for implementation is C++.
+
+
+-----------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------
+
+
+Assumptions
+If the input file has index values which go beyond the size of the string, we are appending the string to itself.
+For Example:
+
+
+Input :         
+TGG
+1
+7
+CAGC
+0
+3
+
+
+After processing the strings:
+TGTGGGTGTGGG
+CCAGCCAGCAGCCAGC
+
+
+In case of TGG, first we make it TGTGGG, now, it’s length becomes 6 and we don’t have any character at index 7 in this string, so, we append the previous string at the last index.
+
+
+-----------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------
+
+
+
+Basic algorithm implementation
+The basic (space-inefficient) algorithmic version for this task uses a general 2-D dynamic programming approach which starts off with initializing a 2-D array of size m*n, to store the similarity values between strings X with length m and Y with length n. In this 2-D OPT array, a single entry say OPT[i][j] stores the similarity value for sub-strings X[0…i] and Y[0…j]. 
+At any point in time, for calculating the similarity value between 2 strings of size i and j respectively, we need to calculate the minimum score out of the 3 possible cases.
+1. Xi and Yj are matched: The final score will be the sum of the similarity score for strings X[0...i-1] and Y[0…j-1] and add the alpha score for the characters Xi and Yj
+2. Xi is matched with a blank but Yj is not: The final score will the sum of the similarity score for strings X[0…i-1] and Y[0…j] and the gap score (sigma)
+3. Yj is matched with a blank but Xi is not: The final score will the sum of the similarity score for strings X[0…i] and Y[0…j-1] and the gap score (sigma)
+After obtaining the optimal results, we backtrack and at each step construct the output strings for both X and Y, matching the characters with each other or with gaps depending on the OPT value of current step and the value in its predecessors.
+
+
+Space efficient algorithm implementation
+This algorithmic version of solving the problem combines the Dynamic programming approach with a divide and conquer paradigm bringing the space complexity down from O(m*n) to O(m+n). For constructing the result, we use divide and conquer wherein we divide the X string into half and then we find the optimal split point (divide point) for the Y string using the dynamic programming approach explained earlier. The optimal split point for the Y string (say Q) is one which minimizes the penalty between strings X0….Xm/2 and Y0….Yq and Xm/2….Xm and Yq+1….Yn. After finding this split point we recursively call the arguments for the left substrings and the right substrings. The divide and conquer approach, unlike the dynamic programming approach, finds the optimal solution rather than calculating the value of the optimal solution and therefore the results from these recursive calls are simply combined via concatenation. The base case is called when either of the strings are empty or size 1/2 in which case, we pass the strings to our basic algorithm as the base case will find the optimal solution using efficient space, because either the number of rows or columns in OPT array will be of length 2.
+
+-----------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------
+
+
+Testing
+
+
+Thorough testing was performed on the implemented algorithms using the sample test cases provided and the results obtained were matched with the given output to verify the scores. Additionally, multiple test cases were created manually using a random input generation script written in python which was then given as input to the programs. The smaller manual test cases generated using the input generation script were solved manually and verified using the developed programs.
+
+Using the input generation script mentioned before, a random set of strings was generated to construct the plots relating to CPU time and CPU memory usage with respect to the problem size. The problem size we refer to here, is the length of the input strings X and Y (namely, m and n). The string generation script returns a set of 25 strings of varying length (ranging between length 2 and 4000), consisting of the DNA characters ‘A’, ‘C’, ‘T’, and ‘G’ as described in the problem statement. These strings are then used as inputs for the basic and space-efficient versions and the outputs obtained (memory and time stats) are then used for plotting. These values are written to an excel file and a line graph is constructed on Excel leveraging its charting capabilities. To further reduce outliers in the data, each algorithm is run 10 times on the same input and the memory and time values are averaged over these 10 runs.
+
+
+-----------------------------------------------------------------------------------------------
+
+
+Time and Space Complexity Analysis
+
+
+Basic algorithmic implementation: The time and space complexity, both, for this version is O(m*n). 
+Here, m = length of X string, and 
+           n = length of Y string
+
+
+Space efficient algorithmic implementation: The time complexity for this version is equal to O(m*n) whereas the space complexity drops down to O(m+n). 
+Here, m = length of X string, and 
+           n = length of Y string
+To get an intuition for why space complexity drops to O(m+n), we can think of maintaining a globally accessible list(array), which holds the answer nodes from the shortest corner-to-corner path in the OPT array. This array can have maximum (m+n) entries only since no corner-to-corner path will utilize more than these many number of edges.
+
+
+-----------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------
+
+
+Results 
+
+
+CPU time v/s Problem Size plot
+
+
+1. To measure the time taken by the program in C++, we have made use of the high resolution clock in the chrono library which gives us time at the accuracy level of microseconds . It is converted to seconds and saved to a file
+2. Looking at the ‘time.png’ plot, it is evident that the efficient version of the code takes almost twice the time as the basic version for larger input sizes (>4000)
+3. For smaller size inputs, the two versions take almost the same time (<100 ms). As the input sizes grow larger, the efficient version takes longer because it involves a higher number of constant time computation steps as compared to its basic counterpart.
+4. Also, it is necessary to note that since the efficient version uses a divide and conquer paradigm for space reduction, it leads to a greater number of recursive calls to the main DnC method, which eventually leads to an increase in the overall time.
+
+
+-----------------------------------------------------------------------------------------------
+
+
+CPU memory usage v/s Problem Size plot 
+
+
+1. To measure the memory utilized by the programs in C++, we have made use of the linux specific system resource library and it’s rusage call which returns the resource(memory) usage of a process/program. It gets recorded in bytes, which was then converted to kb for plotting purposes.
+2. Looking at the ‘memory.png’ plot, we can clearly see that the space efficient version uses almost constant space (<200 kbs) while the basic version’s space demands boom as the input size increases.
+3. Again, like time, for smaller size inputs, the memory utilized by both implementations remains same, but as we increase it to sizes >2500, the asymptotic growth rate becomes evident. This is because the space efficient implementation breaks the input into smaller and smaller strings and solves the subproblems recursively. 
+4. While the basic version uses a table of size m*n, the efficient version uses a table of size at most m+n. 
+
+
+-----------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------
+
+
+
+Contributions 
+
+
+Kabir Juneja: 
+Responsible for the space efficient program, report and plot
+
+
+Abhay Iyer:
+Responsible for basic dynamic programming implementation, report and plot
+
+
+Jai Mansukhani: 
+Responsible for strings preprocessing, I/O operations from a file and writing to the output file, writing the bash script, report and plot
