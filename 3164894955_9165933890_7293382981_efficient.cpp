@@ -107,15 +107,15 @@ pair<int, pair<string, string> > findOptimalCost(string s1, string s2, int delta
 	return make_pair(minCostForAlignment, make_pair(xAlignment, yAlignment));
 }
 
-void printVector(vector<int> vec)
-{
-	for(int i=0;i<vec.size();i++)
-	{
-		cout<<vec[i]<<" ";
-	}
-	cout<<endl;
-	return;
-}
+// void printVector(vector<int> vec)
+// {
+// 	for(int i=0;i<vec.size();i++)
+// 	{
+// 		cout<<vec[i]<<" ";
+// 	}
+// 	cout<<endl;
+// 	return;
+// }
 
 
 vector<int> optimalCostValueOptimisedSpace(string s1, string s2, int delta, int alphas[4][4])
@@ -266,9 +266,18 @@ pair<string, string> preprocessStrings(string s1, string s2, vector<int>& indexe
 	for(int i=0;i<indexesS1.size();i++)
 	{
 		string s1_l="", s1_r="";
+		int s1Ind=-1, s2Ind=-1;
 
-		s1_l += s1.substr(0,indexesS1[i]+1);
-		s1_r +=  s1.substr(indexesS1[i]+1);
+		if(s1.length() <= indexesS1[i]+1)
+			s1_l += s1;
+		else{
+			s1_l += s1.substr(0,indexesS1[i]+1);
+			s1_r +=  s1.substr(indexesS1[i]+1);
+		}
+		// s1_l += s1.substr(0,indexesS1[i]+1);
+
+		// if(indexesS1[i]+1 > s1.length()-1)
+		// 	s1_r +=  s1.substr(indexesS1[i]+1);
 
 		string updatedS1 = "";
 
@@ -279,8 +288,16 @@ pair<string, string> preprocessStrings(string s1, string s2, vector<int>& indexe
 
 	for(int i=0;i<indexesS2.size();i++)
 	{
-		string s2_l = s2.substr(0,indexesS2[i]+1);
-		string s2_r = s2.substr(indexesS2[i]+1);
+
+		string s2_l = "";
+		string s2_r = "";
+		if(s2.length() <= indexesS2[i]+1)
+			s2_l += s2;
+		else{
+			s2_l = s2.substr(0,indexesS2[i]+1);
+			s2_r = s2.substr(indexesS2[i]+1);
+		}
+		// string s2_r = s2.substr(indexesS2[i]+1);
 		string updatedS2 = "";
 		updatedS2 += (s2_l + s2 + s2_r);
 		s2 = updatedS2;
@@ -298,8 +315,8 @@ void writeOutput(vector<int> iMinCostAdv, string line1, string line2, duration<l
 	outputFile << line1 << endl;					//Line1
 	outputFile << line2 << endl;				//Line2
 	outputFile << iMinCostAdv[iMinCostAdv.size()-1]<<endl;		//Line3 - Cost
-	outputFile << iDuration.count() / double(1000000) << endl;	//Line4 - Time consumed
-	outputFile << iMemoryConsumed << endl;						//Line5 - Space consumed - Dummy value (To do - Find actual cost)
+	outputFile << setprecision(10) << iDuration.count() / double(1000000) << endl;	//Line4 - Time consumed
+	outputFile << setprecision(10) << iMemoryConsumed << endl;						//Line5 - Space consumed - Dummy value (To do - Find actual cost)
 	outputFile.close();
 	
 }
@@ -355,15 +372,18 @@ int main(int argc, char* argv[])
 		}
 
 
-		if(s1.size()>1)
+		if(s1.size()>1 && isspace(s1.back()))
 		s1 = s1.substr(0, s1.size()-1);
 
-		if(s2.size()>1)
+		if(s2.size()>1 && isspace(s2.back()))
 		s2 = s2.substr(0, s2.size()-1);
 		pair<string, string> alginmentStrings = preprocessStrings(s1, s2, indexesS1, indexesS2);
 
 		string sequence1 = alginmentStrings.first;
 		string sequence2 = alginmentStrings.second;
+		// cout<<sequence1<<" "<<sequence2<<endl;
+		// sequence1 = "TACCCTCAGGGCCGTGGATTTCGTGGTGTTGGACGAACATTTGTGAGCGATGCAGCATCGAAAACTCGTACAGGCCACGATGGTGTTCGCTGTTGGGGGGAAATTTCAGTTTGACACAAGGCGAATAATTGTTTGACTAAACAAAATCATAACGTGCTCCGTGCCGAAAGACGCGAATGCTGTACTTACCATGGGCTGTGCGCATCGCCTCGCGTCCTCCTCGATATGCGCGCATGTAAGGAGTCGGATTATAGTCCATTCAAAGGCACTGTATATGAAGTGCTGTCCGGGAAAGACGCGAATGCTGTACTTACC";
+		// sequence2 = "GATCTCGCGACAAACGTCGACTGGAGGTAGGCCGGGAATGGTTGAGACCTATGCTGCCTTTTTGGGTATTTAGTGGCTCGTAGAAAGGGTACTAGACGGTCTGGCCGCATCACAACGACTTATGTTGGAGGTAACGCATTCTTAACCCCACGGAGGAGAGTAACGTGTGCTATTTAGCCGCGTGATCGGTAACCAACTTTCGAGTTCATTATATTAATATACCATTCAAAGGCACTGTATATGAAGTGCTGTCCGGGAAAGACGCGAATGCTGTACTTACCATGGGCTGTGCGCATCGCCTCGCGTCCTCCTCGATAT";
 
 		cout<<sequence1.size()<<" "<<sequence2.size()<<endl;
 
@@ -408,8 +428,8 @@ int main(int argc, char* argv[])
 			lastFiftyY = yAligned;
 		}
 
-		cout<<firstFiftyX<<" "<<lastFiftyX<<endl;
-		cout<<firstFiftyY<<" "<<lastFiftyY<<endl;
+		// cout<<firstFiftyX<<" "<<lastFiftyX<<endl;
+		// cout<<firstFiftyY<<" "<<lastFiftyY<<endl;
 		
 		// cout<<minCostDnCnDP.first<<endl;
 		// cout<<minCostDnCnDP.second<<endl;
@@ -418,11 +438,11 @@ int main(int argc, char* argv[])
 		auto stop = high_resolution_clock::now();
 
 		auto duration = duration_cast<microseconds>(stop - start);
-		cout << duration.count() / double(1000000) << endl;
+		// cout << duration.count() / double(1000000) << endl;
 		
 		struct rusage usage2;
         float returnValue2 = getrusage(RUSAGE_SELF, &usage2);
-        cout << float(usage2.ru_maxrss)/float(1024) << endl;
+        // cout << float(usage2.ru_maxrss) << endl;
         float memoryConsumed = usage2.ru_maxrss - usage.ru_maxrss;
         memoryConsumed /= float(1024);
 
